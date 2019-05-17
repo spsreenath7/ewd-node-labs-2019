@@ -6,18 +6,36 @@ import Form from './components/newsForm';
 //import api from './dataStore/stubAPI';
 import * as api from './api';
 import _ from 'lodash';
+//import {Button} from 'react-bootstrap';
+import { Redirect } from 'react-router-dom';
 
 export default class App extends Component {
 
-    state = {posts: [{}]};
+    state = {posts: [{}],login:false};
+    _isMounted = false;
 
-    componentDidMount() {
-        api.getAll().then(resp => {
-            this.setState({
-                posts: resp.posts
-            });
-        }).catch(console.error);
-    };
+    async componentDidMount () {
+        this._isMounted=true
+        try{
+              const resp = await api.getAll();
+              if (this._isMounted){
+              this.setState({
+                       posts: resp,
+                       login: false,
+                     });
+                    }
+     
+           } catch (e){
+             if (this._isMounted) this.setState({
+                      login: true
+                    });
+           }
+      };
+
+      componentWillUnmount(){
+        this._isMounted = false;
+      }
+     
 
     addNewsItem = (title, link) => {
         api.add(title,link)
@@ -38,12 +56,13 @@ export default class App extends Component {
     render() {
         const posts = _.sortBy(this.state.posts, post =>
             post.upvotes);
+        const { login } = this.state;
         return (
             <div className="container">
+                
                 <div className="row">
                     <div className="col-md-9 col-md-offset-1">
-                        <NewsList posts={posts} 
-                        upvoteHandler={this.incrementUpvote} />
+                        <NewsList posts={posts} upvoteHandler={this.incrementUpvote} />
                     </div>
                 </div>
                 <div className="row">
@@ -51,7 +70,9 @@ export default class App extends Component {
                         <Form handleAdd={ this.addNewsItem } />
                     </div>
                 </div>
+                {login && (<Redirect to='/login'/>)}
             </div>
+           
         );
     }
 }

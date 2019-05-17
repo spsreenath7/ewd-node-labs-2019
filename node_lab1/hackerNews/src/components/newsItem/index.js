@@ -8,10 +8,10 @@ export default class NewsItem extends Component {
 render() {
     let line ;
     if (this.props.post.link ) {
-        line = <a href={this.props.post.link} >
+        line = <a key={this.props.id} href={this.props.post.link} >
                 {this.props.post.title} </a> ;
     } else {
-        line = <span>{this.props.post.title} </span> ;
+        line = <span key={this.props.id}>{this.props.post.title} </span> ;
     }
     return (
         <div >

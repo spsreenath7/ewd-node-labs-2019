@@ -11,13 +11,14 @@ router.get('/', asyncHandler(async (req, res) => {
 
 // Add a post
 router.post('/', asyncHandler(async (req, res) => {
-    const newPost = req.body;
-    if (newPost) {
-          const post = await Post.create(newPost);
-          return res.status(201).send({post});
-      } else {
-         return handleError(res, err);
-      }
+  const newPost = req.body;
+  newPost.user = req.userId || 'anonymous';
+  if (newPost) {
+        const post = await Post.create(newPost);
+        return res.status(201).send({post});
+    } else {
+       return handleError(res, err);
+    }
 }));
 
 // upvote a post

@@ -6,6 +6,14 @@ import bodyParser from 'body-parser';
 import './db';
 import loadContacts from './contactsData';
 import {loadPosts} from './postsData';
+import {loadActs} from './activityData';
+import loadUsers from './userData';
+import usersRouter from './api/users';
+import actsRouter from './api/activities';
+import session from 'express-session';
+import authenticate from './authenicate';
+import passport from './auth';
+
 
 
 dotenv.config();
@@ -14,20 +22,33 @@ const app = express();
 
 const port = process.env.PORT;
 
-//configure body-parser
-
 if (process.env.seedDb) {
   loadContacts();
   loadPosts();
+  loadUsers();
+  loadActs();
 }
 
+app.use(passport.initialize());
+
+
+//configure body-parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
 app.use('/api/contacts', contactsRouter);
-app.use('/api/posts', postsRouter);
+
+app.use('/api/acts', actsRouter);
+
+app.use('/api/posts', passport.authenticate('jwt', {
+  session: false
+}), postsRouter);
+
+app.use('/api/users', usersRouter);
+
 app.use(express.static('public'));
 
 app.listen(port, () => {
   console.info(`Server running at ${port}`);
 });
+
